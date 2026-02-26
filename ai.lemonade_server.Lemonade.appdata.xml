@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>ai.lemonade_server.Lemonade</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <name>Lemonade</name>
+  <summary>Local LLM Server and Desktop Application</summary>
+  <developer id="ai.lemonade_server">
+    <name>Lemonade SDK</name>
+  </developer>
+  <description>
+    <p>
+      Lemonade is a lightweight, high-performance local LLM server with support for 
+      multiple backends including llama.cpp, FastFlowLM, and RyzenAI.
+    </p>
+  </description>
+  <launchable type="desktop-id">ai.lemonade_server.Lemonade.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Lemonade Banner</caption>
+      <image>https://raw.githubusercontent.com/lemonade-sdk/assets/main/docs/banner.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Lemonade Interface</caption>
+      <image>https://raw.githubusercontent.com/lemonade-sdk/assets/main/docs/banner_02.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Model Manager - List View</caption>
+      <image>https://raw.githubusercontent.com/lemonade-sdk/assets/main/docs/model_manager.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Model Manager - Details</caption>
+      <image>https://raw.githubusercontent.com/lemonade-sdk/assets/main/docs/model_manager_02.png</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://lemonade-server.ai/</url>
+  <url type="bugtracker">https://github.com/lemonade-sdk/lemonade/issues</url>
+  <url type="vcs-browser">https://github.com/lemonade-sdk/lemonade</url>
+  <content_rating type="oars-1.1" />
+</component>

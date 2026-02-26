@@ -1,0 +1,85 @@
+app-id: ai.lemonade_server.Lemonade
+runtime: org.freedesktop.Platform
+runtime-version: '25.08'
+sdk: org.freedesktop.Sdk
+base: org.electronjs.Electron2.BaseApp
+base-version: '25.08'
+sdk-extensions:
+  - org.freedesktop.Sdk.Extension.node20      # Required for Electron/npm build
+command: lemonade-app                         # The entry point (wrapper script or binary)
+separate-locales: false
+finish-args:
+  - --share=ipc
+  - --share=network                           # Allows app-to-server communication and model downloads
+  - --socket=fallback-x11
+  - --socket=wayland
+  - --device=dri                              # Enables Vulkan/GPU acceleration
+  - --talk-name=org.kde.StatusNotifierWatcher # Lemonade disables tray icons on Linux, enabled for future
+  - --talk-name=org.freedesktop.Notifications
+  - --talk-name=org.gtk.Notifications
+
+modules:
+  - name: lemonade-server
+    buildsystem: simple
+    build-commands:
+      - sed -i 's/if(NOT CMAKE_INSTALL_PREFIX STREQUAL "\/usr")/if(FALSE)/g' CMakeLists.txt
+      - cmake -G Ninja . -DCMAKE_INSTALL_PREFIX=/app -DBUILD_WEB_APP=OFF -DBUILD_ELECTRON_APP=OFF -DFETCHCONTENT_SOURCE_DIR_JSON=/run/build/lemonade-server/third_party/json -DFETCHCONTENT_SOURCE_DIR_CLI11=/run/build/lemonade-server/third_party/CLI11 -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/run/build/lemonade-server/third_party/httplib
+      - ninja
+      - ninja install
+      - ln -s /app/share/lemonade-server/resources /app/bin/resources
+    sources:
+      - &lemonade-source
+        type: git
+        url: https://github.com/lemonade-sdk/lemonade.git
+        tag: v9.3.4
+        commit: 9f2c36c5b5598242e1501ff385f3191220ce21f4
+      - type: archive
+        url: https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
+        sha256: 0d8ef5af7f9794e3263480193c491549b2ba6cc74bb018906202ada498a79406
+        dest: third_party/json
+      - type: archive
+        url: https://github.com/CLIUtils/CLI11/archive/refs/tags/v2.4.2.tar.gz
+        sha256: f2d893a65c3b1324c50d4e682c0cdc021dd0477ae2c048544f39eed6654b699a
+        dest: third_party/CLI11
+      - type: archive
+        url: https://github.com/yhirose/cpp-httplib/archive/refs/tags/v0.26.0.tar.gz
+        sha256: a66f908f50ccb119769adce44fe1eac75f81b6ffab7c4ac0211bb663ffeb2688
+        dest: third_party/httplib
+
+  - name: lemonade-app
+    buildsystem: simple
+    build-options:
+      append-path: /usr/lib/sdk/node20/bin
+      env:
+        HOME: /run/build/lemonade-app
+        XDG_CACHE_HOME: /run/build/lemonade-app/flatpak-node/cache
+        NPM_CONFIG_CACHE: /run/build/lemonade-app/flatpak-node/npm-cache
+        NPM_CONFIG_OFFLINE: "true"
+        NPM_CONFIG_LOGLEVEL: info
+        NPM_CONFIG_NODEDIR: /usr/lib/sdk/node20
+    build-commands:
+      - cd src/app && npm install --offline
+      - cd src/app && npm run build:linux
+      - cp -r src/app/dist-app/linux-unpacked /app/lib/lemonade-app
+      - install -Dm755 lemonade-app-wrapper.sh /app/bin/lemonade-app
+    sources:
+      - *lemonade-source
+      - generated-sources.json
+      - type: script
+        dest-filename: lemonade-app-wrapper.sh
+        commands:
+          - lemonade-router "$@" &
+          - trap 'lemonade-server stop; kill 0; sleep 5' EXIT # Graceful stop and cleanup of background processes
+          - zypak-wrapper /app/lib/lemonade-app/lemonade
+
+  - name: metadata
+    buildsystem: simple
+    build-commands:
+      - install -Dm644 ai.lemonade_server.Lemonade.appdata.xml /app/share/appdata/ai.lemonade_server.Lemonade.appdata.xml
+      - sed -i 's/Icon=lemonade-app/Icon=ai.lemonade_server.Lemonade/g' data/lemonade-app.desktop
+      - install -Dm644 data/lemonade-app.desktop /app/share/applications/ai.lemonade_server.Lemonade.desktop
+      - install -Dm644 src/app/assets/logo.svg /app/share/icons/hicolor/scalable/apps/ai.lemonade_server.Lemonade.svg
+    sources:
+      - type: file
+        path: ai.lemonade_server.Lemonade.appdata.xml
+      - *lemonade-source
