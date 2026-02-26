@@ -19,11 +19,13 @@ finish-args:
   - --talk-name=org.gtk.Notifications
 
 modules:
+  - shared-modules/libayatana-appindicator/libayatana-appindicator-gtk3.json
+
   - name: lemonade-server
     buildsystem: simple
     build-commands:
       - sed -i 's/if(NOT CMAKE_INSTALL_PREFIX STREQUAL "\/usr")/if(FALSE)/g' CMakeLists.txt
-      - cmake -G Ninja . -DCMAKE_INSTALL_PREFIX=/app -DBUILD_WEB_APP=OFF -DBUILD_ELECTRON_APP=OFF -DFETCHCONTENT_SOURCE_DIR_JSON=/run/build/lemonade-server/third_party/json -DFETCHCONTENT_SOURCE_DIR_CLI11=/run/build/lemonade-server/third_party/CLI11 -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/run/build/lemonade-server/third_party/httplib
+      - cmake -G Ninja . -DCMAKE_INSTALL_PREFIX=/app -DBUILD_WEB_APP=OFF -DBUILD_ELECTRON_APP=OFF -DENABLE_LINUX_TRAY=ON -DCMAKE_CXX_FLAGS="-I/app/include/libayatana-appindicator3-0.1" -DFETCHCONTENT_SOURCE_DIR_JSON=/run/build/lemonade-server/third_party/json -DFETCHCONTENT_SOURCE_DIR_CLI11=/run/build/lemonade-server/third_party/CLI11 -DFETCHCONTENT_SOURCE_DIR_HTTPLIB=/run/build/lemonade-server/third_party/httplib
       - ninja
       - ninja install
       - ln -s /app/share/lemonade-server/resources /app/bin/resources
@@ -33,6 +35,8 @@ modules:
         url: https://github.com/lemonade-sdk/lemonade.git
         tag: v9.3.4
         commit: 9f2c36c5b5598242e1501ff385f3191220ce21f4
+      - type: patch
+        path: linux-tray.patch
       - type: archive
         url: https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
         sha256: 0d8ef5af7f9794e3263480193c491549b2ba6cc74bb018906202ada498a79406
@@ -68,8 +72,7 @@ modules:
       - type: script
         dest-filename: lemonade-app-wrapper.sh
         commands:
-          - lemonade-server serve "$@" &
-          - trap 'lemonade-server stop; pkill -u $USER; sleep 2' EXIT # Graceful stop and cleanup of background processes
+          - lemonade-server status || lemonade-server serve "$@" &
           - zypak-wrapper /app/lib/lemonade-app/lemonade
 
   - name: metadata
@@ -79,6 +82,7 @@ modules:
       - sed -i 's/Icon=lemonade-app/Icon=ai.lemonade_server.Lemonade/g' data/lemonade-app.desktop
       - install -Dm644 data/lemonade-app.desktop /app/share/applications/ai.lemonade_server.Lemonade.desktop
       - install -Dm644 src/app/assets/logo.svg /app/share/icons/hicolor/scalable/apps/ai.lemonade_server.Lemonade.svg
+      - ln -s ai.lemonade_server.Lemonade.svg /app/share/icons/hicolor/scalable/apps/lemonade.svg
     sources:
       - type: file
         path: ai.lemonade_server.Lemonade.appdata.xml
