@@ -68,8 +68,8 @@ modules:
       - type: script
         dest-filename: lemonade-app-wrapper.sh
         commands:
-          - lemonade-router "$@" &
-          - trap 'lemonade-server stop; kill 0; sleep 5' EXIT # Graceful stop and cleanup of background processes
+          - lemonade-server serve "$@" &
+          - trap 'lemonade-server stop; pkill -u $USER; sleep 2' EXIT # Graceful stop and cleanup of background processes
           - zypak-wrapper /app/lib/lemonade-app/lemonade
 
   - name: metadata
