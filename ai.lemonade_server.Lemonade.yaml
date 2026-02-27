@@ -13,6 +13,8 @@ finish-args:
   - --share=network                           # Allows app-to-server communication and model downloads
   - --socket=fallback-x11
   - --socket=wayland
+  - --filesystem=xdg-cache                    # Grants access to the host's XDG cache (eg: access to HF models)
+  - --filesystem=home:ro                      # Allows reading models from the home directory
   - --device=dri                              # Enables Vulkan/GPU acceleration
   - --talk-name=org.kde.StatusNotifierWatcher # Lemonade disables tray icons on Linux, enabled for future
   - --talk-name=org.freedesktop.Notifications
