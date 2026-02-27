@@ -85,6 +85,7 @@ modules:
     build-commands:
       - install -Dm644 ai.lemonade_server.Lemonade.appdata.xml /app/share/appdata/ai.lemonade_server.Lemonade.appdata.xml
       - sed -i 's/Icon=lemonade-app/Icon=ai.lemonade_server.Lemonade/g' data/lemonade-app.desktop
+      - sed -i 's/Name=Lemonade App/Name=Lemonade/g' data/lemonade-app.desktop
       - install -Dm644 data/lemonade-app.desktop /app/share/applications/ai.lemonade_server.Lemonade.desktop
       - install -Dm644 src/app/assets/logo.svg /app/share/icons/hicolor/scalable/apps/ai.lemonade_server.Lemonade.svg
       - ln -s ai.lemonade_server.Lemonade.svg /app/share/icons/hicolor/scalable/apps/lemonade.svg
