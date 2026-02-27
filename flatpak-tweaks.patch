@@ -1,0 +1,46 @@
+diff --git a/src/cpp/tray/tray_app.cpp b/src/cpp/tray/tray_app.cpp
+--- a/src/cpp/tray/tray_app.cpp
++++ b/src/cpp/tray/tray_app.cpp
+@@ -2536,16 +2536,32 @@ void TrayApp::on_show_logs() {
+         log_viewer_pid_ = 0;
+     }
+ 
+-    // Fork and open gnome-terminal or xterm
+-    pid_t pid = fork();
+-    if (pid == 0) {
+-        // Child process
+-        std::string cmd = "gnome-terminal -- tail -f '" + log_file_ + "' || xterm -e tail -f '" + log_file_ + "'";
+-        execl("/bin/sh", "sh", "-c", cmd.c_str(), nullptr);
+-        exit(0);
+-    } else if (pid > 0) {
+-        log_viewer_pid_ = pid;
+-    }
++    // Fork and open a terminal to follow the log (ptyxis > gnome-terminal > xterm).
++    // When running inside a Flatpak sandbox, escape via flatpak-spawn --host and
++    // re-enter the sandbox with flatpak run --command=tail so the log file
++    // (which lives inside the sandbox filesystem) is accessible.
++    pid_t pid = fork();
++    if (pid == 0) {
++        std::string cmd;
++        if (access("/.flatpak-info", F_OK) == 0) {
++            // Running inside Flatpak - tail must run inside the sandbox
++            std::string tail_cmd = "flatpak run --command=tail ai.lemonade_server.Lemonade"
++                                   " -f \"" + log_file_ + "\"";
++            std::string inner = "ptyxis -- " + tail_cmd
++                              + " || gnome-terminal -- " + tail_cmd
++                              + " || xterm -e " + tail_cmd;
++            cmd = "flatpak-spawn --host sh -c '" + inner + "'";
++        } else {
++            std::string tail_cmd = "tail -f '" + log_file_ + "'";
++            cmd = "ptyxis -- " + tail_cmd
++                + " || gnome-terminal -- " + tail_cmd
++                + " || xterm -e " + tail_cmd;
++        }
++        execl("/bin/sh", "sh", "-c", cmd.c_str(), nullptr);
++        exit(0);
++    } else if (pid > 0) {
++        log_viewer_pid_ = pid;
++    }
+ #endif
+ }
+ 

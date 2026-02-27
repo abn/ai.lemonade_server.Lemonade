@@ -19,6 +19,7 @@ finish-args:
   - --talk-name=org.kde.StatusNotifierWatcher # Lemonade disables tray icons on Linux, enabled for future
   - --talk-name=org.freedesktop.Notifications
   - --talk-name=org.gtk.Notifications
+  - --talk-name=org.freedesktop.Flatpak       # Required for flatpak-spawn --host (show logs in terminal)
 
 modules:
   - shared-modules/libayatana-appindicator/libayatana-appindicator-gtk3.json
@@ -39,6 +40,8 @@ modules:
         commit: 9f2c36c5b5598242e1501ff385f3191220ce21f4
       - type: patch
         path: linux-tray.patch
+      - type: patch
+        path: flatpak-tweaks.patch
       - type: archive
         url: https://github.com/nlohmann/json/archive/refs/tags/v3.11.3.tar.gz
         sha256: 0d8ef5af7f9794e3263480193c491549b2ba6cc74bb018906202ada498a79406
