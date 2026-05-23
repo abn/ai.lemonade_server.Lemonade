@@ -16,11 +16,8 @@ jobs:
         with:
           submodules: true
 
-      - name: Setup Bats
-        uses: bats-core/bats-action@3.0.0
-
       - name: Run Tests
-        run: bats tests/supervisor/
+        run: make test
 
   flatpak-build:
     name: "Verify Flatpak Build"
