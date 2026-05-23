@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>ai.lemonade_server.Lemonade</id>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>Apache-2.0</project_license>
+  <name>Lemonade</name>
+  <summary>Local LLM Server and Desktop Application</summary>
+  <developer id="ai.lemonade_server">
+    <name>Lemonade SDK</name>
+  </developer>
+  <description>
+    <p>
+      Lemonade runs large language models on your own machine. It bundles a local
+      LLM server with a desktop chat client and a system-tray control.
+    </p>
+    <ul>
+      <li>llama.cpp, FastFlowLM, and RyzenAI inference backends</li>
+      <li>Desktop chat interface and model manager</li>
+      <li>Built-in HTTP API server, managed from the system tray</li>
+    </ul>
+  </description>
+  <launchable type="desktop-id">ai.lemonade_server.Lemonade.desktop</launchable>
+  <screenshots>
+    <screenshot type="default">
+      <caption>Lemonade Banner</caption>
+      <image>https://raw.githubusercontent.com/lemonade-sdk/assets/main/docs/banner.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Lemonade Interface</caption>
+      <image>https://raw.githubusercontent.com/lemonade-sdk/assets/main/docs/banner_02.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Model Manager - List View</caption>
+      <image>https://raw.githubusercontent.com/lemonade-sdk/assets/main/docs/model_manager.png</image>
+    </screenshot>
+    <screenshot>
+      <caption>Model Manager - Details</caption>
+      <image>https://raw.githubusercontent.com/lemonade-sdk/assets/main/docs/model_manager_02.png</image>
+    </screenshot>
+  </screenshots>
+  <url type="homepage">https://lemonade-server.ai/</url>
+  <url type="bugtracker">https://github.com/lemonade-sdk/lemonade/issues</url>
+  <url type="vcs-browser">https://github.com/lemonade-sdk/lemonade</url>
+  <content_rating type="oars-1.1" />
+  <categories>
+    <category>Utility</category>
+    <category>Science</category>
+  </categories>
+  <releases>
+    <release version="10.6.0" date="2026-05-22">
+      <description>
+        <p>Adds support for Lemonade Omni multimodal models with custom omni model support in the GUI and CLI, improved custom-model downloads, and an updated llama.cpp backend.</p>
+      </description>
+    </release>
+    <release version="10.5.1" date="2026-05-20">
+      <description>
+        <p>Adds built-in MTP support, vision model labels, and updated llama.cpp/ROCm backends. Removes the deprecated lemonade-server CLI shim.</p>
+      </description>
+    </release>
+    <release version="10.4.0" date="2026-05-07">
+      <description>
+        <p>Adds support for the vLLM backend and various model manager performance improvements.</p>
+      </description>
+    </release>
+    <release version="10.0.1" date="2026-03-01">
+      <description>
+        <p>Initial Tauri desktop application release.</p>
+      </description>
+    </release>
+  </releases>
+</component>

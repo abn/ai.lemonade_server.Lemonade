@@ -1,0 +1,94 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build-bundle:
+    name: "Build Flatpak Bundle"
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/flathub-infra/flatpak-github-actions:gnome-50
+      options: --privileged
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - name: Build Flatpak Bundle
+        uses: flatpak/flatpak-github-actions/flatpak-builder@v6
+        with:
+          manifest-path: ai.lemonade_server.Lemonade.yaml
+          bundle: Lemonade.flatpak
+          cache-key: flatpak-builder-${{ github.ref_name }}
+
+      - name: Upload Bundle Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: flatpak-bundle
+          path: Lemonade.flatpak
+
+  create-release:
+    name: "Create CalVer Release"
+    runs-on: ubuntu-latest
+    needs: build-bundle
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          submodules: true
+
+      - name: Download Bundle Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: flatpak-bundle
+
+      - name: Generate CalVer Version and Tag
+        id: calver
+        shell: bash
+        run: |
+          git fetch --tags
+          YYYY_MM=$(date +%Y.%m)
+          LATEST_I=$(git tag -l "${YYYY_MM}.*" | sed "s/^${YYYY_MM}\.//" | sort -n | tail -n 1)
+          if [ -z "$LATEST_I" ]; then
+            NEW_VERSION="${YYYY_MM}.1"
+          else
+            NEW_VERSION="${YYYY_MM}.$((LATEST_I + 1))"
+          fi
+          echo "Release version: ${NEW_VERSION}"
+          echo "version=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Configure Git
+        run: |
+          git config --local user.name "github-actions[bot]"
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Tag Repository
+        env:
+          TAG_NAME: ${{ steps.calver.outputs.version }}
+        run: |
+          git tag "$TAG_NAME"
+          git push origin "$TAG_NAME"
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG_NAME: ${{ steps.calver.outputs.version }}
+        run: |
+          sed 's/^          //' << 'EOF' > release_notes.md
+          ### Installation Instructions
+
+          To install this version of Lemonade, download the attached `Lemonade.flatpak` bundle and run the following command in your terminal:
+
+          ```bash
+          flatpak install --user Lemonade.flatpak
+          ```
+          EOF
+
+          gh release create "$TAG_NAME" Lemonade.flatpak \
+            --title "Release $TAG_NAME" \
+            --notes-file release_notes.md
