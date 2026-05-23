@@ -1,3 +1,5 @@
+> ℹ️ This project has now migrated upstream to [lemonade-sdk/lemonade-flatpak](https://github.com/lemonade-sdk/lemonade-flatpak). Development and maintainence will continue there.
+
 # Lemonade Flatpak
 
 A self-contained Flatpak packaging for [Lemonade](https://github.com/lemonade-sdk/lemonade), bundling the local LLM runtime engine, system tray controller, and desktop client.
