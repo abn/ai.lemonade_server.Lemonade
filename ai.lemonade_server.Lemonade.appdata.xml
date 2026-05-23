@@ -43,8 +43,8 @@
   <url type="vcs-browser">https://github.com/lemonade-sdk/lemonade</url>
   <content_rating type="oars-1.1" />
   <categories>
+    <category>Development</category>
     <category>Utility</category>
-    <category>Science</category>
   </categories>
   <releases>
     <release version="10.6.0" date="2026-05-22">
